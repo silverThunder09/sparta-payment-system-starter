@@ -55,6 +55,16 @@ public class CartService {
         }
     }
 
+    // 회원의 전체 장바구니 엔티티 조회
+    public List<CartItem> findCartEntities(Long memberId) {
+        return cartItemRepository.findByMemberId(memberId);
+    }
+
+    // 특정 ID 목록에 해당하는 회원의 장바구니 엔티티 조회 (상품 정보 포함)
+    public List<CartItem> findCartEntitiesByIds(Long memberId, List<Long> cartItemIds) {
+        return cartItemRepository.findByIdInAndMember_IdWithProduct(cartItemIds, memberId);
+    }
+
     private CartItemResponse toResponse(CartItem item) {
         return new CartItemResponse(
                 item.getId(),
