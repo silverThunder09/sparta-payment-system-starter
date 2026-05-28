@@ -6,12 +6,14 @@ import com.sparta.paymentsystem.domain.cart.repository.CartItemRepository;
 import com.sparta.paymentsystem.global.error.BusinessException;
 import com.sparta.paymentsystem.global.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -63,6 +65,14 @@ public class CartService {
     // 특정 ID 목록에 해당하는 회원의 장바구니 엔티티 조회 (상품 정보 포함)
     public List<CartItem> findCartEntitiesByIds(Long memberId, List<Long> cartItemIds) {
         return cartItemRepository.findByIdInAndMember_IdWithProduct(cartItemIds, memberId);
+    }
+
+    public void clearCartItems(List<Long> orderedItemIds, Long memberId) {
+        int deleted = cartItemRepository.deleteAllByIdInAndMemberId(orderedItemIds, memberId);
+        if (deleted != orderedItemIds.size()) {
+            log.warn("장바구니 삭제 불일치: expected={}, actual={}, memberId={}",
+                    orderedItemIds.size(), deleted, memberId);
+        }
     }
 
     private CartItemResponse toResponse(CartItem item) {
